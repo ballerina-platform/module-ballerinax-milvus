@@ -1,0 +1,90 @@
+[package]
+org = "ballerinax"
+name = "milvus"
+version = "1.0.0"
+authors = ["Ballerina"]
+keywords = ["milvus", "vector_database", "vector_search"]
+repository = "https://github.com/ballerina-platform/module-ballerinax-milvus"
+license = ["Apache-2.0"]
+distribution = "2201.12.0"
+
+[platform.java21]
+graalvmCompatible = true
+
+[[platform.java21.dependency]]
+groupId = "io.ballerina.lib"
+artifactId = "milvus-native"
+version = "1.0.0"
+path = "../native/build/libs/milvus-native-1.0.0-SNAPSHOT.jar"
+
+[[platform.java21.dependency]]
+groupId = "io.milvus"
+artifactId = "milvus-sdk-java"
+version = "2.6.1"
+path = "./lib/milvus-sdk-java-2.6.1.jar"
+
+[[platform.java21.dependency]]
+groupId = "io.grpc"
+artifactId = "grpc-api"
+version = "1.60.1"
+path = "./lib/grpc-api-1.60.1.jar"
+
+[[platform.java21.dependency]]
+groupId = "io.grpc"
+artifactId = "grpc-netty-shaded"
+version = "1.60.1"
+path = "./lib/grpc-netty-shaded-1.60.1.jar"
+
+[[platform.java21.dependency]]
+groupId = "com.google.guava"
+artifactId = "guava"
+version = "32.0.1-jre"
+path = "./lib/guava-32.0.1-jre.jar"
+
+[[platform.java21.dependency]]
+groupId = "io.grpc"
+artifactId = "grpc-core"
+version = "1.60.1"
+path = "./lib/grpc-core-1.60.1.jar"
+
+[[platform.java21.dependency]]
+groupId = "io.grpc"
+artifactId = "grpc-stub"
+version = "1.60.1"
+path = "./lib/grpc-stub-1.60.1.jar"
+
+[[platform.java21.dependency]]
+groupId = "com.google.protobuf"
+artifactId = "protobuf-java"
+version = "4.31.1"
+path = "./lib/protobuf-java-4.31.1.jar"
+
+[[platform.java21.dependency]]
+groupId = "io.grpc"
+artifactId = "grpc-protobuf"
+version = "1.60.1"
+path = "./lib/grpc-protobuf-1.60.1.jar"
+
+[[platform.java21.dependency]]
+groupId = "io.grpc"
+artifactId = "grpc-protobuf-lite"
+version = "1.60.1"
+path = "./lib/grpc-protobuf-lite-1.60.1.jar"
+
+[[platform.java21.dependency]]
+groupId = "com.google.guava"
+artifactId = "failureaccess"
+version = "1.0.3"
+path = "./lib/failureaccess-1.0.3.jar"
+
+[[platform.java21.dependency]]
+groupId = "io.perfmark"
+artifactId = "perfmark-api"
+version = "0.27.0"
+path = "./lib/perfmark-api-0.27.0.jar"
+
+[[platform.java21.dependency]]
+groupId = "org.apache.commons"
+artifactId = "commons-collections4"
+version = "4.4"
+path = "./lib/commons-collections4-4.4.jar"
