@@ -56,6 +56,9 @@ public class Client {
 
     public static void initiateClient(BObject clientObj, BString serviceUrl, BMap<String, Object> config) {
         BMap<?, ?> authConfig = config.getMapValue(StringUtils.fromString("auth"));
+        BString username = config.getStringValue(StringUtils.fromString("username"));
+        BString password = config.getStringValue(StringUtils.fromString("password"));
+        BString dbName = config.getStringValue(StringUtils.fromString("databaseName"));
         String token = null;
         if (authConfig != null) {
             BString tokenValue = authConfig.getStringValue(StringUtils.fromString("token"));
@@ -63,12 +66,58 @@ public class Client {
                 token = tokenValue.getValue();
             }
         }
-        ConnectConfig connectConfig = ConnectConfig.builder()
+        ConnectConfig.ConnectConfigBuilder connectionConfig = ConnectConfig.builder()
                 .uri(serviceUrl.getValue())
-                .token(token)
-                .build();
-        MilvusClientV2 client = new MilvusClientV2(connectConfig);
+                .token(token);
+        connectionConfig = (username != null) ? connectionConfig.username(username.getValue()) : connectionConfig;
+        connectionConfig = (password != null) ? connectionConfig.password(password.getValue()) : connectionConfig;
+        connectionConfig = (dbName != null) ? connectionConfig.dbName(dbName.getValue()) : connectionConfig;
+        MilvusClientV2 client = new MilvusClientV2(connectionConfig.build());
         clientObj.addNativeData("client", client);
+    }
+
+    public static Object createCollection(BObject clientObject, BMap<String, Object> request) {
+        MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData("client");
+        String collectionName = request.getStringValue(StringUtils.fromString("collectionName")).getValue();
+        String primaryKeyField = request.getStringValue(StringUtils.fromString("primaryKeyName")).getValue();
+        Long dimension = request.getIntValue(StringUtils.fromString("dimension"));
+
+        CreateCollectionReq.CollectionSchema collectionSchema = MilvusClientV2.CreateSchema();
+        collectionSchema.addField(AddFieldReq.builder()
+                .fieldName(primaryKeyField)
+                .dataType(DataType.Int64)
+                .isPrimaryKey(Boolean.TRUE)
+                .autoID(Boolean.FALSE)
+                .build());
+
+        collectionSchema.addField(AddFieldReq.builder()
+                .fieldName("vector").dataType(DataType.FloatVector)
+                .dimension(dimension.intValue()).build());
+
+        CreateCollectionReq createCollectionRequest = CreateCollectionReq.builder()
+                .collectionName(collectionName)
+                .dimension(dimension.intValue())
+                .collectionSchema(collectionSchema)
+                .build();
+        client.createCollection(createCollectionRequest);
+        return null;
+    }
+
+    public static Object loadCollection(BObject clientObject, BString collectionName) {
+        MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData("client");
+        client.loadCollection(LoadCollectionReq.builder()
+                .collectionName(collectionName.getValue())
+                .build());
+        return null;
+    }
+
+    public static BArray listCollections(BObject clientObject) {
+        MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData("client");
+        List<String> collectionsList = client.listCollections().getCollectionNames();
+        BString[] collectionNames = collectionsList.stream()
+                .map(StringUtils::fromString)
+                .toArray(BString[]::new);
+        return ValueCreator.createArrayValue(collectionNames);
     }
 
     public static Object createIndex(BObject clientObject, BMap<String, Object> request) {
@@ -92,65 +141,12 @@ public class Client {
         return null;
     }
 
-    public static Object loadCollection(BObject clientObject, BString collectionName) {
-        MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData("client");
-        client.loadCollection(LoadCollectionReq.builder()
-                .collectionName(collectionName.getValue())
-                .build());
-        return null;
-    }
-
-    public static Object createCollection(BObject clientObject, BMap<String, Object> request) {
-        MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData("client");
-        String collectionName = request.getStringValue(StringUtils.fromString("collectionName")).getValue();
-        String primaryKeyField = request.getStringValue(StringUtils.fromString("primaryKeyName")).getValue();
-        Long dimension = request.getIntValue(StringUtils.fromString("dimension"));
-        if (client == null) {
-            throw new RuntimeException("Milvus client is not initialized");
-        }
-        CreateCollectionReq.CollectionSchema collectionSchema = MilvusClientV2.CreateSchema();
-        collectionSchema.addField(AddFieldReq.builder()
-                .fieldName(primaryKeyField)
-                .dataType(DataType.Int64)
-                .isPrimaryKey(Boolean.TRUE)
-                .autoID(Boolean.FALSE)
-                .description("Primary Key").build());
-
-        collectionSchema.addField(AddFieldReq.builder()
-                .fieldName("vector").dataType(DataType.FloatVector)
-                .dimension(dimension.intValue()).build());
-
-        CreateCollectionReq createCollectionRequest = CreateCollectionReq.builder()
-                .collectionName(collectionName)
-                .dimension(dimension.intValue())
-                .collectionSchema(collectionSchema)
-                .build();
-        client.createCollection(createCollectionRequest);
-        return null;
-    }
-
-    public static BArray listCollections(BObject clientObject) {
-        MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData("client");
-        if (client == null) {
-            throw new RuntimeException("Milvus client is not initialized");
-        }
-        List<String> collectionsList = client.listCollections().getCollectionNames();
-        BString[] collectionNames = collectionsList.stream()
-                .map(StringUtils::fromString)
-                .toArray(BString[]::new);
-        return ValueCreator.createArrayValue(collectionNames);
-    }
-
     public static Object upsert(BObject clientObject, BMap<String, Object> request) {
         MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData("client");
         String collectionName = request.getStringValue(StringUtils.fromString("collectionName")).getValue();
         BMap<?, ?> data = request.getMapValue(StringUtils.fromString("data"));
         double[] vectors = ((BArray) data.get(StringUtils.fromString("vectors"))).getFloatArray();
         String primaryKey = data.getStringValue(StringUtils.fromString("primaryKey")).getValue();
-
-        if (client == null) {
-            throw new RuntimeException("Milvus client is not initialized");
-        }
         Gson gson = new Gson();
         JsonObject row = new JsonObject();
         List<Double> vectorList = new ArrayList<>();
