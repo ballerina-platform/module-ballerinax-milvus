@@ -78,14 +78,16 @@ function testDeleteEntry() returns error? {
 }
 
 @test:Config {
-    groups: ["query"]
+    groups: ["query"],
+    dependsOn: [testUpsertEntry, testCreateIndex, testCreateCollection]
 }
 function testSearchNearVectors() returns error? {
     check milvusClient->loadCollection(collectionName);
     SearchResult[][] result = milvusClient->search({
         collectionName,
         vectors: [0.1, 0.2],
-        topK: 1
+        topK: 10,
+        filter: "primary_key == 1"
     });
     test:assertEquals(result[0][0].primaryKey, 1);
 }
