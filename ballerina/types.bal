@@ -23,12 +23,12 @@ public type Error distinct error;
 #
 # + username - The username for the Milvus connection
 # + password - The password for the Milvus connection
-# + dbName - The database name for the Milvus connection
+# + databaseName - The database name for the Milvus connection
 public type ConnectionConfig record {
     *http:ClientConfiguration;
     string username?;
     string password?;
-    string dbName?;
+    string databaseName?;
 };
 
 # Represents the request for the upsert operation.
