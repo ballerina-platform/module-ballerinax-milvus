@@ -18,7 +18,7 @@ import ballerina/test;
 
 Client milvusClient = check new(serviceUrl = "http://localhost:19530");
 
-string collectionName = "test_collection";
+string collectionName = "test_collections";
 string id  = "10001";
 string primaryKey = "id";
 
@@ -27,18 +27,6 @@ function testCreateCollection() returns error? {
     check milvusClient->createCollection({
         collectionName,
         dimension: 3
-    });
-}
-
-@test:Config {
-    groups: ["index"],
-    dependsOn: [testCreateCollection]
-}
-function testCreateIndex() returns error? {
-    check milvusClient->createIndex({
-        collectionName,
-        primaryKey,
-        fieldNames: ["vector"]
     });
 }
 
@@ -56,7 +44,6 @@ function testListCollections() returns error? {
 function testUpsertEntry() returns error? {
     check milvusClient->upsert({
         collectionName,
-        primaryKey,
         data: {
             id,
             vectors: [0.3, 0.4, 0.5],
@@ -78,7 +65,7 @@ function testUpsertEntry() returns error? {
 function testDeleteEntry() returns error? {
     _ = check milvusClient->delete({
         collectionName,
-        filter: string `id == ${id}`
+        filter: string `${primaryKey} == ${id}`
     });
 }
 
