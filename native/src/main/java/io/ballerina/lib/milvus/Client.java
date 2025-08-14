@@ -52,14 +52,35 @@ import static io.ballerina.lib.milvus.Utils.applyDynamicFields;
 
 public class Client {
 
+    public static final BString AUTH_CONFIG = StringUtils.fromString("auth");
+    public static final BString USERNAME = StringUtils.fromString("username");
+    public static final BString PASSWORD = StringUtils.fromString("password");
+    public static final BString DATABASE_NAME = StringUtils.fromString("databaseName");
+    public static final BString BEARER_TOKEN = StringUtils.fromString("token");
+    public static final String NATIVE_CLIENT = "client";
+    public static final BString COLLECTION_NAME = StringUtils.fromString("collectionName");
+    public static final BString DIMENSION = StringUtils.fromString("dimension");
+    public static final BString FIELD_NAMES = StringUtils.fromString("fieldNames");
+    public static final BString PRIMARY_KEY = StringUtils.fromString("primaryKey");
+    public static final BString DATA = StringUtils.fromString("data");
+    public static final BString VECTORS = StringUtils.fromString("vectors");
+    public static final BString ID = StringUtils.fromString("id");
+    public static final String VECTOR = "vector";
+    public static final BString PARTITION_NAME = StringUtils.fromString("partitionName");
+    public static final BString FILTER = StringUtils.fromString("filter");
+    public static final BString PARTITION_NAMES = StringUtils.fromString("partitionNames");
+    public static final BString TOP_K = StringUtils.fromString("topK");
+    public static final String SEARCH_RESULT = "SearchResult";
+    public static final String SIMILARITY_SCORE = "similarityScore";
+
     public static void initiateClient(BObject clientObj, BString serviceUrl, BMap<String, Object> config) {
-        BMap<?, ?> authConfig = config.getMapValue(StringUtils.fromString("auth"));
-        BString username = config.getStringValue(StringUtils.fromString("username"));
-        BString password = config.getStringValue(StringUtils.fromString("password"));
-        BString dbName = config.getStringValue(StringUtils.fromString("databaseName"));
+        BMap<?, ?> authConfig = config.getMapValue(AUTH_CONFIG);
+        BString username = config.getStringValue(USERNAME);
+        BString password = config.getStringValue(PASSWORD);
+        BString dbName = config.getStringValue(DATABASE_NAME);
         String token = null;
         if (authConfig != null) {
-            BString tokenValue = authConfig.getStringValue(StringUtils.fromString("token"));
+            BString tokenValue = authConfig.getStringValue(BEARER_TOKEN);
             if (tokenValue != null) {
                 token = tokenValue.getValue();
             }
@@ -71,13 +92,13 @@ public class Client {
         connectionConfig = (password != null) ? connectionConfig.password(password.getValue()) : connectionConfig;
         connectionConfig = (dbName != null) ? connectionConfig.dbName(dbName.getValue()) : connectionConfig;
         MilvusClientV2 client = new MilvusClientV2(connectionConfig.build());
-        clientObj.addNativeData("client", client);
+        clientObj.addNativeData(NATIVE_CLIENT, client);
     }
 
     public static Object createCollection(BObject clientObject, BMap<String, Object> request) {
-        MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData("client");
-        String collectionName = request.getStringValue(StringUtils.fromString("collectionName")).getValue();
-        Long dimension = request.getIntValue(StringUtils.fromString("dimension"));
+        MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData(NATIVE_CLIENT);
+        String collectionName = request.getStringValue(COLLECTION_NAME).getValue();
+        Long dimension = request.getIntValue(DIMENSION);
         CreateCollectionReq createCollectionRequest = CreateCollectionReq.builder()
                 .collectionName(collectionName)
                 .dimension(dimension.intValue())
@@ -88,7 +109,7 @@ public class Client {
     }
 
     public static Object loadCollection(BObject clientObject, BString collectionName) {
-        MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData("client");
+        MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData(NATIVE_CLIENT);
         client.loadCollection(LoadCollectionReq.builder()
                 .collectionName(collectionName.getValue())
                 .build());
@@ -96,7 +117,7 @@ public class Client {
     }
 
     public static BArray listCollections(BObject clientObject) {
-        MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData("client");
+        MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData(NATIVE_CLIENT);
         List<String> collectionsList = client.listCollections().getCollectionNames();
         BString[] collectionNames = collectionsList.stream()
                 .map(StringUtils::fromString)
@@ -105,10 +126,10 @@ public class Client {
     }
 
     public static Object createIndex(BObject clientObject, BMap<String, Object> request) {
-        String collectionName = request.getStringValue(StringUtils.fromString("collectionName")).getValue();
-        BArray fieldNames = request.getArrayValue(StringUtils.fromString("fieldNames"));
-        BString primaryKey = request.getStringValue(StringUtils.fromString("primaryKey"));
-        MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData("client");
+        String collectionName = request.getStringValue(COLLECTION_NAME).getValue();
+        BArray fieldNames = request.getArrayValue(FIELD_NAMES);
+        BString primaryKey = request.getStringValue(PRIMARY_KEY);
+        MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData(NATIVE_CLIENT);
         List<IndexParam> indexParams = new ArrayList<>();
         for (String fieldName : fieldNames.getStringArray()) {
             indexParams.add(IndexParam.builder().fieldName(fieldName).build());
@@ -126,19 +147,19 @@ public class Client {
     }
 
     public static Object upsert(BObject clientObject, BMap<String, Object> request) {
-        MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData("client");
-        String collectionName = request.getStringValue(StringUtils.fromString("collectionName")).getValue();
-        String primaryKey = request.getStringValue(StringUtils.fromString("primaryKey")).getValue();
-        BMap<?, ?> data = request.getMapValue(StringUtils.fromString("data"));
-        double[] vectors = ((BArray) data.get(StringUtils.fromString("vectors"))).getFloatArray();
-        String id = data.getStringValue(StringUtils.fromString("id")).getValue();
+        MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData(NATIVE_CLIENT);
+        String collectionName = request.getStringValue(COLLECTION_NAME).getValue();
+        String primaryKey = request.getStringValue(PRIMARY_KEY).getValue();
+        BMap<?, ?> data = request.getMapValue(DATA);
+        double[] vectors = ((BArray) data.get(VECTORS)).getFloatArray();
+        String id = data.getStringValue(ID).getValue();
         Gson gson = new Gson();
         JsonObject row = new JsonObject();
         List<Double> vectorList = new ArrayList<>();
         for (double vector : vectors) {
             vectorList.add(vector);
         }
-        row.add("vector", gson.toJsonTree(vectorList));
+        row.add(VECTOR, gson.toJsonTree(vectorList));
         row.add(primaryKey, gson.toJsonTree(id));
         applyDynamicFields(data, gson, row, primaryKey);
         List<JsonObject> dataList = new ArrayList<>();
@@ -152,30 +173,28 @@ public class Client {
     }
 
     public static Object delete(BObject clientObject, BMap<String, Object> request) {
-        MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData("client");
-        BString collectionName = request.getStringValue(StringUtils.fromString("collectionName"));
-        BString partitionName = request.getStringValue(StringUtils.fromString("partitionName"));
-        BArray id = request.getArrayValue(StringUtils.fromString("id"));
-        BString filter = request.getStringValue(StringUtils.fromString("filter"));
-        
+        MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData(NATIVE_CLIENT);
+        BString collectionName = request.getStringValue(COLLECTION_NAME);
+        BString partitionName = request.getStringValue(PARTITION_NAME);
+        BArray id = request.getArrayValue(ID);
+        BString filter = request.getStringValue(FILTER);
         DeleteReq.DeleteReqBuilder<?, ?> deleteReq = DeleteReq.builder();
         deleteReq = (collectionName != null) ? deleteReq.collectionName(collectionName.getValue()) : deleteReq;
         deleteReq = (partitionName != null) ? deleteReq.partitionName(partitionName.getValue()) : deleteReq;
         deleteReq = (id != null)
                 ? deleteReq.ids(Arrays.stream(id.getIntArray()).boxed().collect(Collectors.toList())) : deleteReq;
         deleteReq = (filter != null) ? deleteReq.filter(filter.getValue()) : deleteReq;
-
         DeleteResp deleteResp = client.delete(deleteReq.build());
         return deleteResp.getDeleteCnt();
     }
 
     public static BArray search(BObject clientObject, BMap<String, Object> request) {
-        MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData("client");
-        BString collectionName = request.getStringValue(StringUtils.fromString("collectionName"));
-        BArray partitionName = request.getArrayValue(StringUtils.fromString("partitionNames"));
-        BArray vectors = request.getArrayValue(StringUtils.fromString("vectors"));
-        BString filter = request.getStringValue(StringUtils.fromString("filter"));
-        Long topK = request.getIntValue(StringUtils.fromString("topK"));
+        MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData(NATIVE_CLIENT);
+        BString collectionName = request.getStringValue(COLLECTION_NAME);
+        BArray partitionName = request.getArrayValue(PARTITION_NAMES);
+        BArray vectors = request.getArrayValue(VECTORS);
+        BString filter = request.getStringValue(FILTER);
+        Long topK = request.getIntValue(TOP_K);
 
         SearchReq.SearchReqBuilder<?, ?> searchReq = SearchReq.builder();
         searchReq = (collectionName != null) ? searchReq.collectionName(collectionName.getValue()) : searchReq;
@@ -192,7 +211,7 @@ public class Client {
         SearchResp searchR = client.search(searchReq.build());
         List<List<SearchResp.SearchResult>> searchResults = searchR.getSearchResults();
 
-        RecordType recordType = TypeCreator.createRecordType("SearchResult",
+        RecordType recordType = TypeCreator.createRecordType(SEARCH_RESULT,
                 ModuleUtils.getModule(), 0, false, 1);
         ArrayType arrayType = TypeCreator.createArrayType(recordType);
         BArray[] resultArrays = new BArray[searchResults.size()];
@@ -201,9 +220,9 @@ public class Client {
             BMap<BString, Object>[] responses = new BMap[result.size()];
             for (SearchResp.SearchResult res : result) {
                 BMap<BString, Object> response =
-                        ValueCreator.createRecordValue(ModuleUtils.getModule(), "SearchResult");
-                response.put(StringUtils.fromString("primaryKey"), res.getId());
-                response.put(StringUtils.fromString("similarityScore"), res.getScore().doubleValue());
+                        ValueCreator.createRecordValue(ModuleUtils.getModule(), SEARCH_RESULT);
+                response.put(PRIMARY_KEY, res.getId());
+                response.put(StringUtils.fromString(SIMILARITY_SCORE), res.getScore().doubleValue());
                 responses[result.indexOf(res)] = response;
             }
             BArray responseArray = ValueCreator.createArrayValue(responses,

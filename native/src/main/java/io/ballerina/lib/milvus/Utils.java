@@ -30,12 +30,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static io.ballerina.lib.milvus.Client.VECTOR;
+
 public class Utils {
     static void applyDynamicFields(BMap<?, ?> data, Gson gson, JsonObject row, String primaryKey) {
         Object[] keys = data.getKeys();
         for (Object keyObj : keys) {
             String key = (keyObj instanceof BString) ? ((BString) keyObj).getValue() : String.valueOf(keyObj);
-            if ("vectors".equals(key) || primaryKey.equals(key)) {
+            if (VECTOR.equals(key) || primaryKey.equals(key)) {
                 continue;
             }
             Object val = data.get(StringUtils.fromString(key));
