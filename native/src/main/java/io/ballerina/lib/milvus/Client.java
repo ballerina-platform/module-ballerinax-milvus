@@ -31,9 +31,7 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.milvus.v2.client.ConnectConfig;
 import io.milvus.v2.client.MilvusClientV2;
-import io.milvus.v2.common.DataType;
 import io.milvus.v2.common.IndexParam;
-import io.milvus.v2.service.collection.request.AddFieldReq;
 import io.milvus.v2.service.collection.request.CreateCollectionReq;
 import io.milvus.v2.service.collection.request.LoadCollectionReq;
 import io.milvus.v2.service.index.request.CreateIndexReq;
@@ -79,25 +77,11 @@ public class Client {
     public static Object createCollection(BObject clientObject, BMap<String, Object> request) {
         MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData("client");
         String collectionName = request.getStringValue(StringUtils.fromString("collectionName")).getValue();
-        String primaryKeyField = request.getStringValue(StringUtils.fromString("primaryKeyName")).getValue();
         Long dimension = request.getIntValue(StringUtils.fromString("dimension"));
-
-        CreateCollectionReq.CollectionSchema collectionSchema = MilvusClientV2.CreateSchema();
-        collectionSchema.addField(AddFieldReq.builder()
-                .fieldName(primaryKeyField)
-                .dataType(DataType.Int64)
-                .isPrimaryKey(Boolean.TRUE)
-                .autoID(Boolean.FALSE)
-                .build());
-
-        collectionSchema.addField(AddFieldReq.builder()
-                .fieldName("vector").dataType(DataType.FloatVector)
-                .dimension(dimension.intValue()).build());
-
         CreateCollectionReq createCollectionRequest = CreateCollectionReq.builder()
                 .collectionName(collectionName)
                 .dimension(dimension.intValue())
-                .collectionSchema(collectionSchema)
+                .enableDynamicField(true)
                 .build();
         client.createCollection(createCollectionRequest);
         return null;
@@ -144,9 +128,10 @@ public class Client {
     public static Object upsert(BObject clientObject, BMap<String, Object> request) {
         MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData("client");
         String collectionName = request.getStringValue(StringUtils.fromString("collectionName")).getValue();
+        String primaryKey = request.getStringValue(StringUtils.fromString("primaryKey")).getValue();
         BMap<?, ?> data = request.getMapValue(StringUtils.fromString("data"));
         double[] vectors = ((BArray) data.get(StringUtils.fromString("vectors"))).getFloatArray();
-        String primaryKey = data.getStringValue(StringUtils.fromString("primaryKey")).getValue();
+        String id = data.getStringValue(StringUtils.fromString("id")).getValue();
         Gson gson = new Gson();
         JsonObject row = new JsonObject();
         List<Double> vectorList = new ArrayList<>();
@@ -154,8 +139,8 @@ public class Client {
             vectorList.add(vector);
         }
         row.add("vector", gson.toJsonTree(vectorList));
-        row.add("primary_key", gson.toJsonTree(primaryKey));
-        applyDynamicFields(data, gson, row);
+        row.add(primaryKey, gson.toJsonTree(id));
+        applyDynamicFields(data, gson, row, primaryKey);
         List<JsonObject> dataList = new ArrayList<>();
         dataList.add(row);
         UpsertReq upsertRequest = UpsertReq.builder()

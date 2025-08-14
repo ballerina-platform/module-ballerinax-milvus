@@ -36,13 +36,15 @@ public type ConnectionConfig record {
 # + collectionName - The name of the collection to upsert data into
 # + partitionName - The name of the partition to upsert data into
 # + databaseName - The name of the database to upsert data into
+# + primaryKey - The name of the primary key of the collection (default is `id`)
 # + data - The data to upsert into the Milvus collection
 public type UpsertRequest record {
     string collectionName;
     string partitionName?;
     string databaseName?;
+    string primaryKey = "primary_key";
     record {
-        string primaryKey;
+        string id;
         float[] vectors;
     } data;
 };
@@ -100,11 +102,9 @@ public type SearchResult record {
 #
 # + collectionName - The name of the collection to create
 # + dimension - The dimension of the collection
-# + primaryKeyName - The name of the primary key of the collection
 public type CreateCollectionRequest record {
     string collectionName;
     int dimension;
-    string primaryKeyName = "primary_key";
 };
 
 # Represents the request for the create index operation.

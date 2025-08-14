@@ -40,6 +40,7 @@ public isolated client class Client {
         'class: "io.ballerina.lib.milvus.Client"
     } external;
 
+    // TODO: Add support for both dynamic fields and collection schema when creating a collection
     # Creates a new collection in the Milvus vector database.
     #
     # + request - The request to create a collection
