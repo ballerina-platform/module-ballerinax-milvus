@@ -64,7 +64,8 @@ public class Client {
     public static final BString PRIMARY_KEY = StringUtils.fromString("primaryKey");
     public static final BString DATA = StringUtils.fromString("data");
     public static final BString VECTORS = StringUtils.fromString("vectors");
-    public static final BString ID = StringUtils.fromString("id");
+    public static final String ID_FIELD = "id";
+    public static final BString ID = StringUtils.fromString(ID_FIELD);
     public static final String VECTOR = "vector";
     public static final BString PARTITION_NAME = StringUtils.fromString("partitionName");
     public static final BString FILTER = StringUtils.fromString("filter");
@@ -149,7 +150,6 @@ public class Client {
     public static Object upsert(BObject clientObject, BMap<String, Object> request) {
         MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData(NATIVE_CLIENT);
         String collectionName = request.getStringValue(COLLECTION_NAME).getValue();
-        String primaryKey = request.getStringValue(PRIMARY_KEY).getValue();
         BMap<?, ?> data = request.getMapValue(DATA);
         double[] vectors = ((BArray) data.get(VECTORS)).getFloatArray();
         String id = data.getStringValue(ID).getValue();
@@ -160,8 +160,8 @@ public class Client {
             vectorList.add(vector);
         }
         row.add(VECTOR, gson.toJsonTree(vectorList));
-        row.add(primaryKey, gson.toJsonTree(id));
-        applyDynamicFields(data, gson, row, primaryKey);
+        row.add(ID_FIELD, gson.toJsonTree(id));
+        applyDynamicFields(data, gson, row, ID_FIELD);
         List<JsonObject> dataList = new ArrayList<>();
         dataList.add(row);
         UpsertReq upsertRequest = UpsertReq.builder()

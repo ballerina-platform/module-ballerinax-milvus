@@ -42,7 +42,6 @@ public type UpsertRequest record {
     string collectionName;
     string partitionName?;
     string databaseName?;
-    string primaryKey = "primary_key";
     record {
         string id;
         float[] vectors;
@@ -70,10 +69,6 @@ public type DeleteRequest record {
 # + topK - The number of results to return
 # + filter - The filter to search for
 # + outputFields - The fields to return
-# + roundDecimal - The number of decimal places to round the results to
-# + metricType - The metric type to use for the search
-# + indexType - The type of index to use for the search
-# + indexName - The name of the index to use for the search
 public type SearchRequest record {
     string collectionName;
     string partitionName?;
@@ -81,10 +76,6 @@ public type SearchRequest record {
     int topK;
     string filter?;
     string outputFields?;
-    string roundDecimal?;
-    string metricType?;
-    string indexType?;
-    string indexName?;
 };
 
 # Represents the result of the search operation.
