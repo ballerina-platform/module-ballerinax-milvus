@@ -13,29 +13,25 @@ The Ballerina Milvus connector provides seamless integration with Milvus vector 
 
 ## Setup guide
 
-To utilize the Milvus connector, you must have access to a running Milvus instance.
+To utilize the Milvus connector, you must have access to a running Milvus instance. You can use one of the following methods for that.
 
-### Step 1: Install Milvus
+### Option 1: Using Docker
 
-You can install Milvus using one of the following methods.
+1. Make sure Docker is installed on your system.
 
-#### Option 1: Using Docker
-
-1. Install Docker: Make sure Docker is installed on your system.
-
-2. Run Milvus standalone: Use the following command to start a Milvus standalone instance:
+2. Use the following command to start a Milvus standalone instance in docker
 
 ```bash
 docker run -d --name milvus -p 19530:19530 -p 9091:9091 milvusdb/milvus:v2.6.0 milvus run standalone
 ```
 
-#### Option 2: Using Milvus Cloud (Zilliz)
+### Option 2: Using Milvus Cloud by Zilliz
 
-1. Create a Zilliz account: Visit Zilliz Cloud and create an account.
+1. Create a Zilliz account: Visit [Zilliz Cloud](https://cloud.zilliz.com/) and create an account.
 
-2. Create a collection.
+2. Create a new cluster.
 
-3. Get connection details: Note down the endpoint and API key for your cluster.
+3. Navigate to the API Keys section and generate an API key.
 
 ## Quickstart
 
@@ -59,7 +55,7 @@ configurable string milvusUrl = ?;
 milvus:Client milvusClient = check new(milvusUrl);
 ```
 
-For authenticated connections, you can provide additional configuration:
+For authenticated connections, you can provide additional configuration.
 
 ```ballerina
 milvus:Client milvusClient = check new(milvusUrl);

@@ -1,11 +1,4 @@
-# Ballerina Milvus Connector
-
-[![Build](https://github.com/ballerina-platform/module-ballerinax-milvus/actions/workflows/ci.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-milvus/actions/workflows/ci.yml)
-[![Trivy](https://github.com/ballerina-platform/module-ballerinax-milvus/actions/workflows/trivy-scan.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-milvus/actions/workflows/trivy-scan.yml)
-[![GraalVM Check](https://github.com/ballerina-platform/module-ballerinax-milvus/actions/workflows/build-with-bal-test-native.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-milvus/actions/workflows/build-with-bal-test-native.yml)
-[![GitHub Last Commit](https://img.shields.io/github/last-commit/ballerina-platform/module-ballerinax-milvus.svg)](https://github.com/ballerina-platform/module-ballerinax-milvus/commits/main)
-[![GitHub Issues](https://img.shields.io/github/issues/ballerina-platform/ballerina-library/module/milvus.svg?label=Open%20Issues)](https://github.com/ballerina-platform/ballerina-library/labels/module%2Fmilvus)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+## Overview
 
 [Milvus](https://milvus.io/) is an open-source vector database built for scalable similarity search and AI applications. It provides high-performance vector storage and retrieval capabilities, making it ideal for applications involving machine learning, deep learning, and similarity search scenarios.
 
@@ -13,29 +6,25 @@ The Ballerina Milvus connector provides seamless integration with Milvus vector 
 
 ## Setup guide
 
-To utilize the Milvus connector, you must have access to a running Milvus instance.
+To utilize the Milvus connector, you must have access to a running Milvus instance. You can use one of the following methods for that.
 
-### Step 1: Install Milvus
+### Option 1: Using Docker
 
-You can install Milvus using one of the following methods.
+1. Make sure Docker is installed on your system.
 
-#### Option 1: Using Docker
-
-1. Install Docker: Make sure Docker is installed on your system.
-
-2. Run Milvus standalone: Use the following command to start a Milvus standalone instance:
+2. Use the following command to start a Milvus standalone instance in docker
 
 ```bash
 docker run -d --name milvus -p 19530:19530 -p 9091:9091 milvusdb/milvus:v2.6.0 milvus run standalone
 ```
 
-#### Option 2: Using Milvus Cloud (Zilliz)
+### Option 2: Using Milvus Cloud by Zilliz
 
-1. Create a Zilliz account: Visit Zilliz Cloud and create an account.
+1. Create a Zilliz account: Visit [Zilliz Cloud](https://cloud.zilliz.com/) and create an account.
 
-2. Create a collection.
+2. Create a new cluster.
 
-3. Get connection details: Note down the endpoint and API key for your cluster.
+3. Navigate to the API Keys section and generate an API key.
 
 ## Quickstart
 
@@ -59,7 +48,7 @@ configurable string milvusUrl = ?;
 milvus:Client milvusClient = check new(milvusUrl);
 ```
 
-For authenticated connections, you can provide additional configuration:
+For authenticated connections, you can provide additional configuration.
 
 ```ballerina
 milvus:Client milvusClient = check new(milvusUrl);
