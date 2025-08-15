@@ -34,7 +34,7 @@ function testCreateCollection() returns error? {
     groups: ["list"]
 }
 function testListCollections() returns error? {
-    string[] collection = milvusClient->listCollections();
+    string[] collection = check milvusClient->listCollections();
     test:assertNotEquals(collection.indexOf(collectionName), ());
 }
 
@@ -75,13 +75,13 @@ function testDeleteEntry() returns error? {
 }
 function testSearchNearVectors() returns error? {
     check milvusClient->loadCollection(collectionName);
-    SearchResult[][] result = milvusClient->search({
+    SearchResult[][] result = check milvusClient->search({
         collectionName,
         vectors: [0.3, 0.4, 0.5],
         topK: 10
     });
     if result.length() > 0 {
-        result = milvusClient->search({
+        result = check milvusClient->search({
             collectionName,
             vectors: [0.3, 0.4, 0.5],
             topK: 1,
