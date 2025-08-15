@@ -97,7 +97,7 @@ public type UpsertRequest record {
 public type DeleteRequest record {
     string collectionName;
     string partitionName?;
-    int[] id?;
+    string[] id?;
     string filter?;
 };
 
@@ -120,11 +120,13 @@ public type SearchRequest record {
 
 # Represents the result of the search operation.
 #
-# + primaryKey - The primary key of the result
+# + primaryKey - The name of the primary key of the result
+# + id - The id of the result
 # + similarityScore - The similarity score of the result
 # + outputFields - The output fields of the result
 public type SearchResult record {
-    int primaryKey;
+    string primaryKey;
+    int id;
     float similarityScore;
     record{} outputFields?;
 };

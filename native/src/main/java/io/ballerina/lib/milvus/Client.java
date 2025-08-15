@@ -74,7 +74,6 @@ public class Client {
     public static final BString PARTITION_NAMES = StringUtils.fromString("partitionNames");
     public static final BString TOP_K = StringUtils.fromString("topK");
     public static final String SEARCH_RESULT = "SearchResult";
-    public static final String SIMILARITY_SCORE = "similarityScore";
     public static final BString CREDENTIALS_CONFIG = StringUtils.fromString("credentialsConfig");
     public static final BString CONNECT_TIMEOUT = StringUtils.fromString("connectTimeout");
     public static final BString IDLE_TIMEOUT = StringUtils.fromString("idleTimeout");
@@ -83,6 +82,9 @@ public class Client {
     public static final BString SERVER_NAME = StringUtils.fromString("serverName");
     public static final BString PROXY_ADDRESS = StringUtils.fromString("proxyAddress");
     public static final BString KEEP_ALIVE_WITHOUT_CALLS = StringUtils.fromString("keepAliveWithoutCalls");
+    public static final BString SEARCH_ID = StringUtils.fromString("id");
+    public static final BString SIMILARITY_SCORE = StringUtils.fromString("similarityScore");
+    public static final BString ENTITY = StringUtils.fromString("entity");
 
     public static BError initiateClient(BObject clientObj, BString serviceUrl, BMap<String, Object> config) {
         try {
@@ -282,8 +284,14 @@ public class Client {
                 for (SearchResp.SearchResult res : result) {
                     BMap<BString, Object> response =
                             ValueCreator.createRecordValue(ModuleUtils.getModule(), SEARCH_RESULT);
-                    response.put(PRIMARY_KEY, res.getId());
-                    response.put(StringUtils.fromString(SIMILARITY_SCORE), res.getScore().doubleValue());
+                    BMap<BString, Object> entity = ValueCreator.createMapValue();
+                    for (String key: res.getEntity().keySet()) {
+                        entity.put(StringUtils.fromString(key), res.getEntity().get(key));
+                    }
+                    response.put(PRIMARY_KEY, StringUtils.fromString(res.getPrimaryKey()));
+                    response.put(SEARCH_ID, res.getId());
+                    response.put(SIMILARITY_SCORE, res.getScore().doubleValue());
+                    response.put(ENTITY, entity);
                     responses[result.indexOf(res)] = response;
                 }
                 BArray responseArray = ValueCreator.createArrayValue(responses,
