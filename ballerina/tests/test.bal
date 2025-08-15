@@ -101,7 +101,7 @@ function testSearchNearVectors() returns error? {
         vectors: [0.3, 0.4, 0.5],
         topK: 10
     });
-    if result.length() > 0 {
+    if result.length() > 0 && result[0].length() > 0 {
         result = check milvusClient->search({
             collectionName,
             vectors: [0.3, 0.4, 0.5],
