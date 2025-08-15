@@ -87,6 +87,6 @@ function testSearchNearVectors() returns error? {
             topK: 1,
             filter: string `${primaryKey} == ${id}`
         });
-        test:assertEquals(result[0][0].primaryKey, check int:fromString(id));
+        test:assertEquals(result[0][0].id, check int:fromString(id));
     }
 }
