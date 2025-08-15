@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.TypeTags;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
@@ -39,13 +40,13 @@ import io.milvus.v2.service.index.request.CreateIndexReq;
 import io.milvus.v2.service.vector.request.DeleteReq;
 import io.milvus.v2.service.vector.request.SearchReq;
 import io.milvus.v2.service.vector.request.UpsertReq;
+import io.milvus.v2.service.vector.request.data.BaseVector;
 import io.milvus.v2.service.vector.request.data.FloatVec;
 import io.milvus.v2.service.vector.response.DeleteResp;
 import io.milvus.v2.service.vector.response.SearchResp;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -260,15 +261,28 @@ public class Client {
             BString filter = request.getStringValue(FILTER);
             Long topK = request.getIntValue(TOP_K);
 
+            if (vectors == null || vectors.size() == 0) {
+                return createError("Vectors cannot be null or empty", null);
+            }
+            List<BaseVector> vectorArray = new ArrayList<>();
+
+            if (vectors.getElementType().getTag() == TypeTags.FLOAT_TAG) {
+                vectorArray.add(new FloatVec(Arrays.stream(vectors.getFloatArray())
+                        .mapToObj(d -> (float) d)
+                        .collect(Collectors.toList())));
+            } else {
+                for (int i = 0; i < vectors.size(); i++) {
+                    BArray currentVector = (BArray) vectors.get(i); // Use get(i) instead of array access
+                    vectorArray.add(new FloatVec(Arrays.stream(currentVector.getFloatArray())
+                            .mapToObj(d -> (float) d)
+                            .collect(Collectors.toList())));
+                }
+            }
             SearchReq.SearchReqBuilder<?, ?> searchReq = SearchReq.builder();
             searchReq = (collectionName != null) ? searchReq.collectionName(collectionName.getValue()) : searchReq;
             searchReq = (partitionName != null)
                     ? searchReq.partitionNames(Arrays.asList(partitionName.getStringArray())) : searchReq;
-            searchReq = (vectors != null)
-                    ? searchReq.data(Collections.singletonList(new FloatVec(Arrays.stream(vectors.getFloatArray())
-                    .mapToObj(d -> (float) d)
-                    .collect(Collectors.toList()))))
-                    : searchReq;
+            searchReq = searchReq.data(vectorArray);
             searchReq = (filter != null) ? searchReq.filter(filter.getValue()) : searchReq;
             searchReq = (topK != null) ? searchReq.topK(topK.intValue()) : searchReq;
 

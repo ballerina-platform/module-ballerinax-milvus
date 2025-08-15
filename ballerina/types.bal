@@ -112,7 +112,7 @@ public type DeleteRequest record {
 public type SearchRequest record {
     string collectionName;
     string partitionName?;
-    float[] vectors;
+    float[][]|float[] vectors;
     int topK;
     string filter?;
     string outputFields?;
