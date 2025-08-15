@@ -20,8 +20,10 @@ package io.ballerina.lib.milvus;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 
@@ -29,10 +31,21 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.ballerina.lib.milvus.Client.VECTOR;
+import static io.ballerina.lib.milvus.ModuleUtils.getModule;
 
 public class Utils {
+    private static final String ERROR_TYPE = "Error";
+    private Utils() {
+    }
+
+    public static BError createError(String message, Throwable throwable) {
+        BError cause = Objects.isNull(throwable) ? null : ErrorCreator.createError(throwable);
+        return ErrorCreator.createError(getModule(), ERROR_TYPE, StringUtils.fromString(message), cause, null);
+    }
+
     static void applyDynamicFields(BMap<?, ?> data, Gson gson, JsonObject row, String primaryKey) {
         Object[] keys = data.getKeys();
         for (Object keyObj : keys) {

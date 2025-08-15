@@ -25,18 +25,18 @@ public isolated client class Client {
     # + config - The configurations to be used when initializing the `connector` 
     # + serviceUrl - URL of the target service 
     # + return - An error if connector initialization failed 
-    public isolated function init(string serviceUrl, *ConnectionConfig config) returns error? {
+    public isolated function init(string serviceUrl, *ConnectionConfig config) returns Error? {
         return self.initiateClient(serviceUrl, config);
     }
 
-    private isolated function initiateClient(string serviceUrl, *ConnectionConfig config) returns error? = @java:Method {
+    private isolated function initiateClient(string serviceUrl, *ConnectionConfig config) returns Error? = @java:Method {
         'class: "io.ballerina.lib.milvus.Client"
     } external;
 
     # Lists all the collections in the Milvus vector database.
     #
     # + return - A list of collection names
-    remote isolated function listCollections() returns string[] = @java:Method {
+    remote isolated function listCollections() returns string[]|Error = @java:Method {
         'class: "io.ballerina.lib.milvus.Client"
     } external;
 
@@ -45,7 +45,7 @@ public isolated client class Client {
     #
     # + request - The request to create a collection
     # + return - `()` if the collection is created successfully, otherwise an error
-    remote isolated function createCollection(CreateCollectionRequest request) returns error? = @java:Method {
+    remote isolated function createCollection(CreateCollectionRequest request) returns Error? = @java:Method {
         'class: "io.ballerina.lib.milvus.Client"
     } external;
 
@@ -53,7 +53,7 @@ public isolated client class Client {
     # 
     # + collectionName - The name of the collection to load
     # + return - `()` if the collection is loaded successfully, otherwise an error
-    remote isolated function loadCollection(string collectionName) returns error? = @java:Method {
+    remote isolated function loadCollection(string collectionName) returns Error? = @java:Method {
         'class: "io.ballerina.lib.milvus.Client"
     } external;
 
@@ -61,7 +61,7 @@ public isolated client class Client {
     #
     # + request - The request to create an index
     # + return - `()` if the index is created successfully, otherwise an error
-    remote isolated function createIndex(CreateIndexRequest request) returns error? = @java:Method {
+    remote isolated function createIndex(CreateIndexRequest request) returns Error? = @java:Method {
         'class: "io.ballerina.lib.milvus.Client"
     } external;
 
@@ -69,7 +69,7 @@ public isolated client class Client {
     #
     # + request - The request to upsert data
     # + return - `()` if the data is upserted successfully, otherwise an error
-    remote isolated function upsert(UpsertRequest request) returns error? = @java:Method {
+    remote isolated function upsert(UpsertRequest request) returns Error? = @java:Method {
         'class: "io.ballerina.lib.milvus.Client"
     } external;
 
@@ -77,7 +77,7 @@ public isolated client class Client {
     # 
     # + request - The request to delete data
     # + return - The number of deleted entities if the data is deleted successfully, otherwise an error
-    remote isolated function delete(DeleteRequest request) returns int|error = @java:Method {
+    remote isolated function delete(DeleteRequest request) returns int|Error = @java:Method {
         'class: "io.ballerina.lib.milvus.Client"
     } external;
 
@@ -85,7 +85,7 @@ public isolated client class Client {
     # 
     # + request - The request to search for data
     # + return - A list of search results
-    remote isolated function search(SearchRequest request) returns SearchResult[][] = @java:Method {
+    remote isolated function search(SearchRequest request) returns SearchResult[][]|Error = @java:Method {
         'class: "io.ballerina.lib.milvus.Client"
     } external;
 }

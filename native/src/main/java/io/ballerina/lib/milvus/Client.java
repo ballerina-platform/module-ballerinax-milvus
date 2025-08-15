@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -49,10 +50,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static io.ballerina.lib.milvus.Utils.applyDynamicFields;
+import static io.ballerina.lib.milvus.Utils.createError;
 
 public class Client {
 
-    public static final BString AUTH_CONFIG = StringUtils.fromString("auth");
+    public static final BString AUTH_CONFIG = StringUtils.fromString("authConfig");
     public static final BString USERNAME = StringUtils.fromString("username");
     public static final BString PASSWORD = StringUtils.fromString("password");
     public static final BString DATABASE_NAME = StringUtils.fromString("databaseName");
@@ -73,6 +75,17 @@ public class Client {
     public static final BString TOP_K = StringUtils.fromString("topK");
     public static final String SEARCH_RESULT = "SearchResult";
     public static final String SIMILARITY_SCORE = "similarityScore";
+    public static final BString CREDENTIALS_CONFIG = StringUtils.fromString("credentialsConfig");
+    public static final BString CONNECT_TIMEOUT = StringUtils.fromString("connectTimeout");
+    public static final BString IDLE_TIMEOUT = StringUtils.fromString("idleTimeout");
+    public static final BString RPC_DEADLINE = StringUtils.fromString("rpcDeadline");
+    public static final BString KEEP_ALIVE_TIMEOUT = StringUtils.fromString("keepAliveTimeout");
+    public static final BString SERVER_NAME = StringUtils.fromString("serverName");
+    public static final BString PROXY_ADDRESS = StringUtils.fromString("proxyAddress");
+    public static final BString KEEP_ALIVE_WITHOUT_CALLS = StringUtils.fromString("keepAliveWithoutCalls");
+
+    public static BError initiateClient(BObject clientObj, BString serviceUrl, BMap<String, Object> config) {
+        try {
 
     public static void initiateClient(BObject clientObj, BString serviceUrl, BMap<String, Object> config) {
         BMap<?, ?> authConfig = config.getMapValue(AUTH_CONFIG);
@@ -94,141 +107,172 @@ public class Client {
         connectionConfig = (dbName != null) ? connectionConfig.dbName(dbName.getValue()) : connectionConfig;
         MilvusClientV2 client = new MilvusClientV2(connectionConfig.build());
         clientObj.addNativeData(NATIVE_CLIENT, client);
+        } catch (Exception error) {
+            return createError("Failed to initiate Milvus client", error);
+        }
     }
 
     public static Object createCollection(BObject clientObject, BMap<String, Object> request) {
-        MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData(NATIVE_CLIENT);
-        String collectionName = request.getStringValue(COLLECTION_NAME).getValue();
-        Long dimension = request.getIntValue(DIMENSION);
-        CreateCollectionReq createCollectionRequest = CreateCollectionReq.builder()
-                .collectionName(collectionName)
-                .dimension(dimension.intValue())
-                .enableDynamicField(true)
-                .build();
-        client.createCollection(createCollectionRequest);
-        return null;
+        try {
+            MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData(NATIVE_CLIENT);
+            String collectionName = request.getStringValue(COLLECTION_NAME).getValue();
+            Long dimension = request.getIntValue(DIMENSION);
+            CreateCollectionReq createCollectionRequest = CreateCollectionReq.builder()
+                    .collectionName(collectionName)
+                    .dimension(dimension.intValue())
+                    .enableDynamicField(true)
+                    .build();
+            client.createCollection(createCollectionRequest);
+            return null;
+        } catch (Exception error) {
+            return createError("Failed to create the collection", error);
+        }
     }
 
     public static Object loadCollection(BObject clientObject, BString collectionName) {
-        MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData(NATIVE_CLIENT);
-        client.loadCollection(LoadCollectionReq.builder()
-                .collectionName(collectionName.getValue())
-                .build());
-        return null;
+        try {
+            MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData(NATIVE_CLIENT);
+            client.loadCollection(LoadCollectionReq.builder()
+                    .collectionName(collectionName.getValue())
+                    .build());
+            return null;
+        } catch (Exception error) {
+            return createError("Failed to load the collection", error);
+        }
     }
 
-    public static BArray listCollections(BObject clientObject) {
-        MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData(NATIVE_CLIENT);
-        List<String> collectionsList = client.listCollections().getCollectionNames();
-        BString[] collectionNames = collectionsList.stream()
-                .map(StringUtils::fromString)
-                .toArray(BString[]::new);
-        return ValueCreator.createArrayValue(collectionNames);
+    public static Object listCollections(BObject clientObject) {
+        try {
+            MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData(NATIVE_CLIENT);
+            List<String> collectionsList = client.listCollections().getCollectionNames();
+            BString[] collectionNames = collectionsList.stream()
+                    .map(StringUtils::fromString)
+                    .toArray(BString[]::new);
+            return ValueCreator.createArrayValue(collectionNames);
+        } catch (Exception error) {
+            return createError("Failed to list collections", error);
+        }
     }
 
     public static Object createIndex(BObject clientObject, BMap<String, Object> request) {
-        String collectionName = request.getStringValue(COLLECTION_NAME).getValue();
-        BArray fieldNames = request.getArrayValue(FIELD_NAMES);
-        BString primaryKey = request.getStringValue(PRIMARY_KEY);
-        MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData(NATIVE_CLIENT);
-        List<IndexParam> indexParams = new ArrayList<>();
-        for (String fieldName : fieldNames.getStringArray()) {
-            indexParams.add(IndexParam.builder().fieldName(fieldName).build());
+        try {
+            String collectionName = request.getStringValue(COLLECTION_NAME).getValue();
+            BArray fieldNames = request.getArrayValue(FIELD_NAMES);
+            BString primaryKey = request.getStringValue(PRIMARY_KEY);
+            MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData(NATIVE_CLIENT);
+            List<IndexParam> indexParams = new ArrayList<>();
+            for (String fieldName : fieldNames.getStringArray()) {
+                indexParams.add(IndexParam.builder().fieldName(fieldName).build());
+            }
+            indexParams.add(IndexParam.builder()
+                    .indexType(IndexParam.IndexType.AUTOINDEX)
+                    .fieldName(primaryKey.getValue())
+                    .build());
+            CreateIndexReq createIndexReq = CreateIndexReq.builder()
+                    .collectionName(collectionName)
+                    .indexParams(indexParams)
+                    .build();
+            client.createIndex(createIndexReq);
+            return null;
+        } catch (Exception error) {
+            return createError("Failed to create index", error);
         }
-        indexParams.add(IndexParam.builder()
-                .indexType(IndexParam.IndexType.AUTOINDEX)
-                .fieldName(primaryKey.getValue())
-                .build());
-        CreateIndexReq createIndexReq = CreateIndexReq.builder()
-                .collectionName(collectionName)
-                .indexParams(indexParams)
-                .build();
-        client.createIndex(createIndexReq);
-        return null;
     }
 
     public static Object upsert(BObject clientObject, BMap<String, Object> request) {
-        MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData(NATIVE_CLIENT);
-        String collectionName = request.getStringValue(COLLECTION_NAME).getValue();
-        BMap<?, ?> data = request.getMapValue(DATA);
-        double[] vectors = ((BArray) data.get(VECTORS)).getFloatArray();
-        String id = data.getStringValue(ID).getValue();
-        Gson gson = new Gson();
-        JsonObject row = new JsonObject();
-        List<Double> vectorList = new ArrayList<>();
-        for (double vector : vectors) {
-            vectorList.add(vector);
+        try {
+            MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData(NATIVE_CLIENT);
+            String collectionName = request.getStringValue(COLLECTION_NAME).getValue();
+            BMap<?, ?> data = request.getMapValue(DATA);
+            double[] vectors = ((BArray) data.get(VECTORS)).getFloatArray();
+            String id = data.getStringValue(ID).getValue();
+            Gson gson = new Gson();
+            JsonObject row = new JsonObject();
+            List<Double> vectorList = new ArrayList<>();
+            for (double vector : vectors) {
+                vectorList.add(vector);
+            }
+            row.add(VECTOR, gson.toJsonTree(vectorList));
+            row.add(ID_FIELD, gson.toJsonTree(id));
+            applyDynamicFields(data, gson, row, ID_FIELD);
+            List<JsonObject> dataList = new ArrayList<>();
+            dataList.add(row);
+            UpsertReq upsertRequest = UpsertReq.builder()
+                    .collectionName(collectionName)
+                    .data(dataList)
+                    .build();
+            client.upsert(upsertRequest);
+            return null;
+        } catch (Exception error) {
+            return createError("Failed to upsert data", error);
         }
-        row.add(VECTOR, gson.toJsonTree(vectorList));
-        row.add(ID_FIELD, gson.toJsonTree(id));
-        applyDynamicFields(data, gson, row, ID_FIELD);
-        List<JsonObject> dataList = new ArrayList<>();
-        dataList.add(row);
-        UpsertReq upsertRequest = UpsertReq.builder()
-                .collectionName(collectionName)
-                .data(dataList)
-                .build();
-        client.upsert(upsertRequest);
-        return null;
     }
 
     public static Object delete(BObject clientObject, BMap<String, Object> request) {
-        MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData(NATIVE_CLIENT);
-        BString collectionName = request.getStringValue(COLLECTION_NAME);
-        BString partitionName = request.getStringValue(PARTITION_NAME);
-        BArray id = request.getArrayValue(ID);
-        BString filter = request.getStringValue(FILTER);
-        DeleteReq.DeleteReqBuilder<?, ?> deleteReq = DeleteReq.builder();
-        deleteReq = (collectionName != null) ? deleteReq.collectionName(collectionName.getValue()) : deleteReq;
-        deleteReq = (partitionName != null) ? deleteReq.partitionName(partitionName.getValue()) : deleteReq;
-        deleteReq = (id != null)
-                ? deleteReq.ids(Arrays.stream(id.getIntArray()).boxed().collect(Collectors.toList())) : deleteReq;
-        deleteReq = (filter != null) ? deleteReq.filter(filter.getValue()) : deleteReq;
-        DeleteResp deleteResp = client.delete(deleteReq.build());
-        return deleteResp.getDeleteCnt();
+        try {
+            MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData(NATIVE_CLIENT);
+            BString collectionName = request.getStringValue(COLLECTION_NAME);
+            BString partitionName = request.getStringValue(PARTITION_NAME);
+            BArray id = request.getArrayValue(ID);
+            BString filter = request.getStringValue(FILTER);
+            DeleteReq.DeleteReqBuilder<?, ?> deleteReq = DeleteReq.builder();
+            deleteReq = (collectionName != null) ? deleteReq.collectionName(collectionName.getValue()) : deleteReq;
+            deleteReq = (partitionName != null) ? deleteReq.partitionName(partitionName.getValue()) : deleteReq;
+            deleteReq = (id != null)
+                    ? deleteReq.ids(Arrays.stream(id.getIntArray()).boxed().collect(Collectors.toList())) : deleteReq;
+            deleteReq = (filter != null) ? deleteReq.filter(filter.getValue()) : deleteReq;
+            DeleteResp deleteResp = client.delete(deleteReq.build());
+            return deleteResp.getDeleteCnt();
+        } catch (Exception error) {
+            return createError("Failed to delete data", error);
+        }
     }
 
-    public static BArray search(BObject clientObject, BMap<String, Object> request) {
-        MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData(NATIVE_CLIENT);
-        BString collectionName = request.getStringValue(COLLECTION_NAME);
-        BArray partitionName = request.getArrayValue(PARTITION_NAMES);
-        BArray vectors = request.getArrayValue(VECTORS);
-        BString filter = request.getStringValue(FILTER);
-        Long topK = request.getIntValue(TOP_K);
+    public static Object search(BObject clientObject, BMap<String, Object> request) {
+        try {
+            MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData(NATIVE_CLIENT);
+            BString collectionName = request.getStringValue(COLLECTION_NAME);
+            BArray partitionName = request.getArrayValue(PARTITION_NAMES);
+            BArray vectors = request.getArrayValue(VECTORS);
+            BString filter = request.getStringValue(FILTER);
+            Long topK = request.getIntValue(TOP_K);
 
-        SearchReq.SearchReqBuilder<?, ?> searchReq = SearchReq.builder();
-        searchReq = (collectionName != null) ? searchReq.collectionName(collectionName.getValue()) : searchReq;
-        searchReq = (partitionName != null)
-                ? searchReq.partitionNames(Arrays.asList(partitionName.getStringArray())) : searchReq;
-        searchReq = (vectors != null)
-                ? searchReq.data(Collections.singletonList(new FloatVec(Arrays.stream(vectors.getFloatArray())
-                        .mapToObj(d -> (float) d)
-                        .collect(Collectors.toList()))))
-                : searchReq;
-        searchReq = (filter != null) ? searchReq.filter(filter.getValue()) : searchReq;
-        searchReq = (topK != null) ? searchReq.topK(topK.intValue()) : searchReq;
+            SearchReq.SearchReqBuilder<?, ?> searchReq = SearchReq.builder();
+            searchReq = (collectionName != null) ? searchReq.collectionName(collectionName.getValue()) : searchReq;
+            searchReq = (partitionName != null)
+                    ? searchReq.partitionNames(Arrays.asList(partitionName.getStringArray())) : searchReq;
+            searchReq = (vectors != null)
+                    ? searchReq.data(Collections.singletonList(new FloatVec(Arrays.stream(vectors.getFloatArray())
+                    .mapToObj(d -> (float) d)
+                    .collect(Collectors.toList()))))
+                    : searchReq;
+            searchReq = (filter != null) ? searchReq.filter(filter.getValue()) : searchReq;
+            searchReq = (topK != null) ? searchReq.topK(topK.intValue()) : searchReq;
 
-        SearchResp searchR = client.search(searchReq.build());
-        List<List<SearchResp.SearchResult>> searchResults = searchR.getSearchResults();
+            SearchResp searchR = client.search(searchReq.build());
+            List<List<SearchResp.SearchResult>> searchResults = searchR.getSearchResults();
 
-        RecordType recordType = TypeCreator.createRecordType(SEARCH_RESULT,
-                ModuleUtils.getModule(), 0, false, 1);
-        ArrayType arrayType = TypeCreator.createArrayType(recordType);
-        BArray[] resultArrays = new BArray[searchResults.size()];
+            RecordType recordType = TypeCreator.createRecordType(SEARCH_RESULT,
+                    ModuleUtils.getModule(), 0, false, 1);
+            ArrayType arrayType = TypeCreator.createArrayType(recordType);
+            BArray[] resultArrays = new BArray[searchResults.size()];
 
-        for (List<SearchResp.SearchResult> result : searchResults) {
-            BMap<BString, Object>[] responses = new BMap[result.size()];
-            for (SearchResp.SearchResult res : result) {
-                BMap<BString, Object> response =
-                        ValueCreator.createRecordValue(ModuleUtils.getModule(), SEARCH_RESULT);
-                response.put(PRIMARY_KEY, res.getId());
-                response.put(StringUtils.fromString(SIMILARITY_SCORE), res.getScore().doubleValue());
-                responses[result.indexOf(res)] = response;
+            for (List<SearchResp.SearchResult> result : searchResults) {
+                BMap<BString, Object>[] responses = new BMap[result.size()];
+                for (SearchResp.SearchResult res : result) {
+                    BMap<BString, Object> response =
+                            ValueCreator.createRecordValue(ModuleUtils.getModule(), SEARCH_RESULT);
+                    response.put(PRIMARY_KEY, res.getId());
+                    response.put(StringUtils.fromString(SIMILARITY_SCORE), res.getScore().doubleValue());
+                    responses[result.indexOf(res)] = response;
+                }
+                BArray responseArray = ValueCreator.createArrayValue(responses,
+                        TypeCreator.createArrayType(recordType));
+                resultArrays[searchResults.indexOf(result)] = responseArray;
             }
-            BArray responseArray = ValueCreator.createArrayValue(responses,
-                    TypeCreator.createArrayType(recordType));
-            resultArrays[searchResults.indexOf(result)] = responseArray;
+            return ValueCreator.createArrayValue(resultArrays, TypeCreator.createArrayType(arrayType));
+        } catch (Exception error) {
+            return createError("Failed to search data", error);
         }
-        return ValueCreator.createArrayValue(resultArrays, TypeCreator.createArrayType(arrayType));
     }
 }
