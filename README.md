@@ -22,8 +22,17 @@ To utilize the Milvus connector, you must have access to a running Milvus instan
 2. Use the following command to start a Milvus standalone instance in docker
 
 ```bash
-docker run -d --name milvus -p 19530:19530 -p 9091:9091 milvusdb/milvus:v2.6.0 milvus run standalone
+# Download the installation script
+$ curl -sfL https://raw.githubusercontent.com/milvus-io/milvus/master/scripts/standalone_embed.sh -o standalone_embed.sh
+
+#Start the Docker container
+$ bash standalone_embed.sh start
 ```
+
+For detailed installation instructions, refer to the official Milvus documentation.
+
+- **Linux/macOS**: [Run Milvus in Docker](https://milvus.io/docs/install_standalone-docker.md)
+- **Windows**: [Run Milvus in Docker on Windows](https://milvus.io/docs/install_standalone-windows.md)
 
 ### Option 2: Using Milvus Cloud by Zilliz
 
