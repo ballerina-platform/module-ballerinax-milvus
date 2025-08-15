@@ -92,12 +92,12 @@ public type UpsertRequest record {
 #
 # + collectionName - The name of the collection to delete data from
 # + partitionName - The name of the partition to delete data from
-# + id - The id of the data to delete
+# + ids - An array of ids of the entries to delete
 # + filter - The filter to delete data from the Milvus collection
 public type DeleteRequest record {
     string collectionName;
     string partitionName?;
-    string[] id?;
+    string[] ids?;
     string filter?;
 };
 
@@ -124,12 +124,12 @@ public type SearchRequest record {
 # + id - The id of the result
 # + similarityScore - The similarity score of the result
 # + outputFields - The output fields of the result
-public type SearchResult record {
+public type SearchResult record {|
     string primaryKey;
     int id;
     float similarityScore;
     record{} outputFields?;
-};
+|};
 
 # Represents the request for the create collection operation.
 #
