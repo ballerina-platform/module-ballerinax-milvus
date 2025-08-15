@@ -83,7 +83,7 @@ public type UpsertRequest record {
     string partitionName?;
     string databaseName?;
     record {
-        string id;
+        int id;
         float[] vectors;
     } data;
 };
@@ -97,7 +97,7 @@ public type UpsertRequest record {
 public type DeleteRequest record {
     string collectionName;
     string partitionName?;
-    string[] ids?;
+    int[] ids?;
     string filter?;
 };
 

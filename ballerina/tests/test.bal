@@ -19,7 +19,7 @@ import ballerina/test;
 Client milvusClient = check new(serviceUrl = "http://localhost:19530");
 
 string collectionName = "test_collections";
-string id  = "10001";
+int id  = 10001;
 string primaryKey = "id";
 
 @test:Config {}
@@ -70,6 +70,27 @@ function testDeleteEntry() returns error? {
 }
 
 @test:Config {
+    groups: ["delete2"],
+    dependsOn: [testSearchNearVectors]
+}
+function testDeleteEntryWithIds() returns error? {
+    int[] ids = [1, 2, 3];
+    foreach int id in ids {
+        check milvusClient->upsert({
+            collectionName,
+            data: {
+                id,
+                vectors: [0.3, 0.4, 0.5]
+            }
+        });
+    }
+    _ = check milvusClient->delete({
+        collectionName,
+        ids
+    });
+}
+
+@test:Config {
     groups: ["query"],
     dependsOn: [testUpsertEntry, testCreateCollection]
 }
@@ -87,6 +108,6 @@ function testSearchNearVectors() returns error? {
             topK: 1,
             filter: string `${primaryKey} == ${id}`
         });
-        test:assertEquals(result[0][0].id, check int:fromString(id));
+        test:assertEquals(result[0][0].id, id);
     }
 }

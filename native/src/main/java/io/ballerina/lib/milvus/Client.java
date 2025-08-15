@@ -68,6 +68,7 @@ public class Client {
     public static final BString VECTORS = StringUtils.fromString("vectors");
     public static final String ID_FIELD = "id";
     public static final BString ID = StringUtils.fromString(ID_FIELD);
+    public static final BString IDS = StringUtils.fromString("ids");
     public static final String VECTOR = "vector";
     public static final BString PARTITION_NAME = StringUtils.fromString("partitionName");
     public static final BString FILTER = StringUtils.fromString("filter");
@@ -207,7 +208,7 @@ public class Client {
             String collectionName = request.getStringValue(COLLECTION_NAME).getValue();
             BMap<?, ?> data = request.getMapValue(DATA);
             double[] vectors = ((BArray) data.get(VECTORS)).getFloatArray();
-            String id = data.getStringValue(ID).getValue();
+            long id = data.getIntValue(ID);
             Gson gson = new Gson();
             JsonObject row = new JsonObject();
             List<Double> vectorList = new ArrayList<>();
@@ -235,13 +236,13 @@ public class Client {
             MilvusClientV2 client = (MilvusClientV2) clientObject.getNativeData(NATIVE_CLIENT);
             BString collectionName = request.getStringValue(COLLECTION_NAME);
             BString partitionName = request.getStringValue(PARTITION_NAME);
-            BArray id = request.getArrayValue(ID);
+            BArray ids = request.getArrayValue(IDS);
             BString filter = request.getStringValue(FILTER);
             DeleteReq.DeleteReqBuilder<?, ?> deleteReq = DeleteReq.builder();
             deleteReq = (collectionName != null) ? deleteReq.collectionName(collectionName.getValue()) : deleteReq;
             deleteReq = (partitionName != null) ? deleteReq.partitionName(partitionName.getValue()) : deleteReq;
-            deleteReq = (id != null)
-                    ? deleteReq.ids(Arrays.stream(id.getIntArray()).boxed().collect(Collectors.toList())) : deleteReq;
+            deleteReq = (ids != null)
+                    ? deleteReq.ids(Arrays.stream(ids.getIntArray()).boxed().collect(Collectors.toList())) : deleteReq;
             deleteReq = (filter != null) ? deleteReq.filter(filter.getValue()) : deleteReq;
             DeleteResp deleteResp = client.delete(deleteReq.build());
             return deleteResp.getDeleteCnt();
