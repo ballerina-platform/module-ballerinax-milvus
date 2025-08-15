@@ -14,21 +14,62 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/http;
-
-# Represents any error related to Ballerina Milvus connector.
-public type Error distinct error;
-
 # Represents the configuration for the Milvus connection.
 #
-# + username - The username for the Milvus connection
-# + password - The password for the Milvus connection
-# + databaseName - The database name for the Milvus connection
+# + authConfig - The auth configurations for the Milvus connection
+# + credentialsConfig - The credentials for the Milvus connection
+# + idleTimeout - The idle timeout for a connection
+# + keepAliveTime - The time between keep-alive probes sent by the client to the server. (Default: 55 seconds)
+# + keepAliveTimeout - The timeout duration for the server to respond to a keep-alive probe sent by the client. (Default: 20 seconds)
+# + keepAliveWithoutCalls - Whether to send keep-alive probes without making requests. (Default: false)
+# + rpcDeadline - The deadline for the rpc operation to be completed. The value defaults to 0, which indicates the deadline is disabled
+# + connectTimeout - The timeout duration for this operation. (Default: 10 seconds)
+# + databaseName - The name of the database to which the target Milvus instance belongs
+# + serverName - The expected name of the server
+# + proxyAddress - The proxy server’s address through which the connection is to be established
+# + secureConfig - The secure configurations for the Milvus connection
 public type ConnectionConfig record {
-    *http:ClientConfiguration;
-    string username?;
-    string password?;
+    AuthConfig authConfig?;
+    CredentialsConfig credentialsConfig?;
+    int idleTimeout?;
+    int keepAliveTime = 55;
+    int keepAliveTimeout = 20;
+    boolean keepAliveWithoutCalls = false;
+    int rpcDeadline = 0;
+    int connectTimeout = 10;
     string databaseName?;
+    string serverName?;
+    string proxyAddress?;
+    SecureConfig secureConfig?;
+};
+
+# Represents the secure configurations for the Milvus connection.
+#
+# + clientKeyPath - The path to the client key file for mutual authentication
+# + clientPemPath - The path to the client pem file for mutual authentication
+# + serverPemPath - The path to the server PEM file for mutual authentication
+# + caPemPath - The path to the CA PEM file for mutual authentication
+public type SecureConfig record {
+    string clientKeyPath;
+    string clientPemPath;
+    string serverPemPath;
+    string caPemPath;
+};
+
+# Represents the auth configurations for the Milvus connection.
+#
+# + token - A valid access token to access the specified Milvus instance.
+public type AuthConfig record {
+    string token;
+};
+
+# Represents the configuration for the Milvus connection with credentials.
+#
+# + username - The username used to connect to the specified Milvus instance.
+# + password - The password used to connect to the specified Milvus instance.
+public type CredentialsConfig record {
+    string username;
+    string password;
 };
 
 # Represents the request for the upsert operation.
@@ -36,7 +77,6 @@ public type ConnectionConfig record {
 # + collectionName - The name of the collection to upsert data into
 # + partitionName - The name of the partition to upsert data into
 # + databaseName - The name of the database to upsert data into
-# + primaryKey - The name of the primary key of the collection (default is `id`)
 # + data - The data to upsert into the Milvus collection
 public type UpsertRequest record {
     string collectionName;

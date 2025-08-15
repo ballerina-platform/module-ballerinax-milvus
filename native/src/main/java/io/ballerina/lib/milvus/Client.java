@@ -86,27 +86,47 @@ public class Client {
 
     public static BError initiateClient(BObject clientObj, BString serviceUrl, BMap<String, Object> config) {
         try {
-
-    public static void initiateClient(BObject clientObj, BString serviceUrl, BMap<String, Object> config) {
-        BMap<?, ?> authConfig = config.getMapValue(AUTH_CONFIG);
-        BString username = config.getStringValue(USERNAME);
-        BString password = config.getStringValue(PASSWORD);
-        BString dbName = config.getStringValue(DATABASE_NAME);
-        String token = null;
-        if (authConfig != null) {
-            BString tokenValue = authConfig.getStringValue(BEARER_TOKEN);
-            if (tokenValue != null) {
-                token = tokenValue.getValue();
+            BMap<?, ?> authConfig = config.getMapValue(AUTH_CONFIG);
+            BMap<?, ?> credentialConfig = config.getMapValue(CREDENTIALS_CONFIG);
+            BString dbName = config.getStringValue(DATABASE_NAME);
+            long connectTimeout = config.getIntValue(CONNECT_TIMEOUT) * 1000;
+            Object idleTimeout = config.get(IDLE_TIMEOUT);
+            long rpcDeadline = config.getIntValue(RPC_DEADLINE) * 1000;
+            long keepAliveTimeout = config.getIntValue(KEEP_ALIVE_TIMEOUT) * 1000;
+            BString serverName = config.getStringValue(SERVER_NAME);
+            BString proxyAddress = config.getStringValue(PROXY_ADDRESS);
+            boolean keepAliveWithoutCalls = config.getBooleanValue(KEEP_ALIVE_WITHOUT_CALLS);
+            String token = null;
+            if (authConfig != null) {
+                BString tokenValue = authConfig.getStringValue(BEARER_TOKEN);
+                if (tokenValue != null) {
+                    token = tokenValue.getValue();
+                }
             }
-        }
-        ConnectConfig.ConnectConfigBuilder connectionConfig = ConnectConfig.builder()
-                .uri(serviceUrl.getValue())
-                .token(token);
-        connectionConfig = (username != null) ? connectionConfig.username(username.getValue()) : connectionConfig;
-        connectionConfig = (password != null) ? connectionConfig.password(password.getValue()) : connectionConfig;
-        connectionConfig = (dbName != null) ? connectionConfig.dbName(dbName.getValue()) : connectionConfig;
-        MilvusClientV2 client = new MilvusClientV2(connectionConfig.build());
-        clientObj.addNativeData(NATIVE_CLIENT, client);
+            ConnectConfig.ConnectConfigBuilder connectionConfig = ConnectConfig.builder();
+            connectionConfig
+                    .uri(serviceUrl.getValue())
+                    .rpcDeadlineMs(rpcDeadline)
+                    .keepAliveTimeoutMs(keepAliveTimeout)
+                    .connectTimeoutMs(connectTimeout)
+                    .keepAliveWithoutCalls(keepAliveWithoutCalls);
+
+            connectionConfig = (idleTimeout != null) ?
+                    connectionConfig.idleTimeoutMs(((Long) idleTimeout) * 1000) : connectionConfig;
+            connectionConfig = (serverName != null) ?
+                    connectionConfig.serverName(serverName.getValue()) : connectionConfig;
+            connectionConfig = (proxyAddress != null) ?
+                    connectionConfig.proxyAddress(proxyAddress.getValue()) : connectionConfig;
+            connectionConfig = (token != null) ? connectionConfig.token(token) : connectionConfig;
+            connectionConfig = (dbName != null) ? connectionConfig.dbName(dbName.getValue()) : connectionConfig;
+            connectionConfig = (dbName != null) ? connectionConfig.dbName(dbName.getValue()) : connectionConfig;
+            if (credentialConfig != null) {
+                connectionConfig = connectionConfig.username(config.getStringValue(USERNAME).getValue());
+                connectionConfig = connectionConfig.password(config.getStringValue(PASSWORD).getValue());
+            }
+            MilvusClientV2 client = new MilvusClientV2(connectionConfig.build());
+            clientObj.addNativeData(NATIVE_CLIENT, client);
+            return null;
         } catch (Exception error) {
             return createError("Failed to initiate Milvus client", error);
         }
