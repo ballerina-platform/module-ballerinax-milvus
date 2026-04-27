@@ -27,14 +27,14 @@ path = "./lib/milvus-sdk-java-2.6.1.jar"
 [[platform.java21.dependency]]
 groupId = "io.grpc"
 artifactId = "grpc-api"
-version = "1.60.1"
-path = "./lib/grpc-api-1.60.1.jar"
+version = "1.75.0"
+path = "./lib/grpc-api-1.75.0.jar"
 
 [[platform.java21.dependency]]
 groupId = "io.grpc"
 artifactId = "grpc-netty-shaded"
-version = "1.60.1"
-path = "./lib/grpc-netty-shaded-1.60.1.jar"
+version = "1.75.0"
+path = "./lib/grpc-netty-shaded-1.75.0.jar"
 
 [[platform.java21.dependency]]
 groupId = "com.google.guava"
@@ -45,14 +45,14 @@ path = "./lib/guava-32.0.1-jre.jar"
 [[platform.java21.dependency]]
 groupId = "io.grpc"
 artifactId = "grpc-core"
-version = "1.60.1"
-path = "./lib/grpc-core-1.60.1.jar"
+version = "1.75.0"
+path = "./lib/grpc-core-1.75.0.jar"
 
 [[platform.java21.dependency]]
 groupId = "io.grpc"
 artifactId = "grpc-stub"
-version = "1.60.1"
-path = "./lib/grpc-stub-1.60.1.jar"
+version = "1.75.0"
+path = "./lib/grpc-stub-1.75.0.jar"
 
 [[platform.java21.dependency]]
 groupId = "com.google.protobuf"
@@ -63,14 +63,14 @@ path = "./lib/protobuf-java-3.25.5.jar"
 [[platform.java21.dependency]]
 groupId = "io.grpc"
 artifactId = "grpc-protobuf"
-version = "1.60.1"
-path = "./lib/grpc-protobuf-1.60.1.jar"
+version = "1.75.0"
+path = "./lib/grpc-protobuf-1.75.0.jar"
 
 [[platform.java21.dependency]]
 groupId = "io.grpc"
 artifactId = "grpc-protobuf-lite"
-version = "1.60.1"
-path = "./lib/grpc-protobuf-lite-1.60.1.jar"
+version = "1.75.0"
+path = "./lib/grpc-protobuf-lite-1.75.0.jar"
 
 [[platform.java21.dependency]]
 groupId = "com.google.guava"
