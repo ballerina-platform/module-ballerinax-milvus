@@ -19,7 +19,7 @@
 import org.apache.tools.ant.taskdefs.condition.Os
 
 plugins {
-    id "com.github.johnrengelman.shadow"
+    id "com.gradleup.shadow"
     id "de.undercouch.download"
     id "net.researchgate.release"
 }
@@ -63,9 +63,16 @@ allprojects {
     }
 }
 
-task build {
-    dependsOn(":milvus-native:build")
-    dependsOn(":milvus-ballerina:build")
+if (!tasks.names.contains('build')) {
+    tasks.register('build') {
+        dependsOn(":milvus-native:build")
+        dependsOn(":milvus-ballerina:build")
+    }
+} else {
+    tasks.named('build') {
+        dependsOn(":milvus-native:build")
+        dependsOn(":milvus-ballerina:build")
+    }
 }
 
 def moduleVersion = project.version.replace("-SNAPSHOT", "")
