@@ -7,84 +7,84 @@ keywords = ["Vector Database", "Vector Search", "Vendor/Zilliz", "Area/AI & Mach
 repository = "https://github.com/ballerina-platform/module-ballerinax-milvus"
 icon = "icon.png"
 license = ["Apache-2.0"]
-distribution = "2201.12.0"
+distribution = "2201.14.0"
 
-[platform.java21]
+[platform.java25]
 graalvmCompatible = false
 
-[[platform.java21.dependency]]
+[[platform.java25.dependency]]
 groupId = "io.ballerina.lib"
 artifactId = "milvus-native"
 version = "1.1.1"
 path = "../native/build/libs/milvus-native-1.1.1.jar"
 
-[[platform.java21.dependency]]
+[[platform.java25.dependency]]
 groupId = "io.milvus"
 artifactId = "milvus-sdk-java"
 version = "2.6.1"
 path = "./lib/milvus-sdk-java-2.6.1.jar"
 
-[[platform.java21.dependency]]
+[[platform.java25.dependency]]
 groupId = "io.grpc"
 artifactId = "grpc-api"
 version = "1.75.0"
 path = "./lib/grpc-api-1.75.0.jar"
 
-[[platform.java21.dependency]]
+[[platform.java25.dependency]]
 groupId = "io.grpc"
 artifactId = "grpc-netty-shaded"
 version = "1.75.0"
 path = "./lib/grpc-netty-shaded-1.75.0.jar"
 
-[[platform.java21.dependency]]
+[[platform.java25.dependency]]
 groupId = "com.google.guava"
 artifactId = "guava"
 version = "32.0.1-jre"
 path = "./lib/guava-32.0.1-jre.jar"
 
-[[platform.java21.dependency]]
+[[platform.java25.dependency]]
 groupId = "io.grpc"
 artifactId = "grpc-core"
 version = "1.75.0"
 path = "./lib/grpc-core-1.75.0.jar"
 
-[[platform.java21.dependency]]
+[[platform.java25.dependency]]
 groupId = "io.grpc"
 artifactId = "grpc-stub"
 version = "1.75.0"
 path = "./lib/grpc-stub-1.75.0.jar"
 
-[[platform.java21.dependency]]
+[[platform.java25.dependency]]
 groupId = "com.google.protobuf"
 artifactId = "protobuf-java"
 version = "3.25.5"
 path = "./lib/protobuf-java-3.25.5.jar"
 
-[[platform.java21.dependency]]
+[[platform.java25.dependency]]
 groupId = "io.grpc"
 artifactId = "grpc-protobuf"
 version = "1.75.0"
 path = "./lib/grpc-protobuf-1.75.0.jar"
 
-[[platform.java21.dependency]]
+[[platform.java25.dependency]]
 groupId = "io.grpc"
 artifactId = "grpc-protobuf-lite"
 version = "1.75.0"
 path = "./lib/grpc-protobuf-lite-1.75.0.jar"
 
-[[platform.java21.dependency]]
+[[platform.java25.dependency]]
 groupId = "com.google.guava"
 artifactId = "failureaccess"
 version = "1.0.3"
 path = "./lib/failureaccess-1.0.3.jar"
 
-[[platform.java21.dependency]]
+[[platform.java25.dependency]]
 groupId = "io.perfmark"
 artifactId = "perfmark-api"
 version = "0.27.0"
 path = "./lib/perfmark-api-0.27.0.jar"
 
-[[platform.java21.dependency]]
+[[platform.java25.dependency]]
 groupId = "org.apache.commons"
 artifactId = "commons-collections4"
 version = "4.4"
