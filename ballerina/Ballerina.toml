@@ -1,7 +1,7 @@
 [package]
 org = "ballerinax"
 name = "milvus"
-version = "1.1.1"
+version = "1.2.0"
 authors = ["Ballerina"]
 keywords = ["Vector Database", "Vector Search", "Vendor/Zilliz", "Area/AI & Machine Learning", "Type/Connector"]
 repository = "https://github.com/ballerina-platform/module-ballerinax-milvus"
@@ -15,8 +15,8 @@ graalvmCompatible = false
 [[platform.java25.dependency]]
 groupId = "io.ballerina.lib"
 artifactId = "milvus-native"
-version = "1.1.1"
-path = "../native/build/libs/milvus-native-1.1.1.jar"
+version = "1.2.0"
+path = "../native/build/libs/milvus-native-1.2.0-SNAPSHOT.jar"
 
 [[platform.java25.dependency]]
 groupId = "io.milvus"
@@ -27,14 +27,14 @@ path = "./lib/milvus-sdk-java-2.6.1.jar"
 [[platform.java25.dependency]]
 groupId = "io.grpc"
 artifactId = "grpc-api"
-version = "1.75.0"
-path = "./lib/grpc-api-1.75.0.jar"
+version = "1.84.2"
+path = "./lib/grpc-api-1.84.2.jar"
 
 [[platform.java25.dependency]]
 groupId = "io.grpc"
 artifactId = "grpc-netty-shaded"
-version = "1.75.0"
-path = "./lib/grpc-netty-shaded-1.75.0.jar"
+version = "1.84.2"
+path = "./lib/grpc-netty-shaded-1.84.2.jar"
 
 [[platform.java25.dependency]]
 groupId = "com.google.guava"
@@ -45,32 +45,32 @@ path = "./lib/guava-32.0.1-jre.jar"
 [[platform.java25.dependency]]
 groupId = "io.grpc"
 artifactId = "grpc-core"
-version = "1.75.0"
-path = "./lib/grpc-core-1.75.0.jar"
+version = "1.84.2"
+path = "./lib/grpc-core-1.84.2.jar"
 
 [[platform.java25.dependency]]
 groupId = "io.grpc"
 artifactId = "grpc-stub"
-version = "1.75.0"
-path = "./lib/grpc-stub-1.75.0.jar"
+version = "1.84.2"
+path = "./lib/grpc-stub-1.84.2.jar"
 
 [[platform.java25.dependency]]
 groupId = "com.google.protobuf"
 artifactId = "protobuf-java"
-version = "3.25.5"
-path = "./lib/protobuf-java-3.25.5.jar"
+version = "3.25.9"
+path = "./lib/protobuf-java-3.25.9.jar"
 
 [[platform.java25.dependency]]
 groupId = "io.grpc"
 artifactId = "grpc-protobuf"
-version = "1.75.0"
-path = "./lib/grpc-protobuf-1.75.0.jar"
+version = "1.84.2"
+path = "./lib/grpc-protobuf-1.84.2.jar"
 
 [[platform.java25.dependency]]
 groupId = "io.grpc"
 artifactId = "grpc-protobuf-lite"
-version = "1.75.0"
-path = "./lib/grpc-protobuf-lite-1.75.0.jar"
+version = "1.84.2"
+path = "./lib/grpc-protobuf-lite-1.84.2.jar"
 
 [[platform.java25.dependency]]
 groupId = "com.google.guava"
