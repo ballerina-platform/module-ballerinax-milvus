@@ -22,6 +22,12 @@ plugins {
     id 'io.ballerina.plugin'
 }
 
+abstract class ExecHelper {
+    @Inject
+    abstract ExecOperations getExecOperations()
+}
+def execHelper = project.objects.newInstance(ExecHelper)
+
 description = 'Ballerina - Milvus Connector'
 
 def packageName = "milvus"
@@ -48,9 +54,9 @@ ballerina {
     packageOrganization = packageOrg
     module = packageName
     testCoverageParam = "--code-coverage --coverage-format=xml"
-    isConnector = true
+    connector = true
     langVersion = ballerinaLangVersion
-    platform = "java21"
+    platform = "java25"
 }
 
 configurations {
@@ -119,7 +125,7 @@ task updateTomlFiles {
 
 task commitTomlFiles {
     doLast {
-        project.exec {
+        execHelper.execOperations.exec {
             ignoreExitValue true
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
                 commandLine 'cmd', '/c', "git commit -m \"[Automated] Update the toml files\" Ballerina.toml Dependencies.toml"
@@ -135,7 +141,7 @@ task startMilvusServer() {
         if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
             def stdOut = new ByteArrayOutputStream()
             // Check if Milvus container is already running
-            exec {
+            execHelper.execOperations.exec {
                 commandLine 'sh', '-c', "docker ps --filter name=milvus-standalone --filter status=running --format '{{.Names}}'"
                 standardOutput = stdOut
                 ignoreExitValue = true
@@ -157,7 +163,7 @@ task startMilvusServer() {
                 }
                 // Relax permissions for test environment (safe in CI/local only)
                 try {
-                    exec {
+                    execHelper.execOperations.exec {
                         workingDir composeDir
                         commandLine 'sh', '-c', "chmod -R 777 volumes"
                         ignoreExitValue = true
@@ -166,7 +172,7 @@ task startMilvusServer() {
                     // Best-effort; continue even if chmod isn't available
                 }
                 def runOut = new ByteArrayOutputStream()
-                exec {
+                execHelper.execOperations.exec {
                     workingDir composeDir
                     // Pass DOCKER_VOLUME_DIRECTORY explicitly to avoid ambiguity with relative paths
                     commandLine 'sh', '-c', "DOCKER_VOLUME_DIRECTORY='${composeDir}' docker compose -f compose.yml up -d"
@@ -183,7 +189,7 @@ task startMilvusServer() {
                 boolean isHealthy = false
                 while (waitedSeconds < timeoutSeconds) {
                     def healthOut = new ByteArrayOutputStream()
-                    exec {
+                    execHelper.execOperations.exec {
                         commandLine 'sh', '-c', "docker ps --filter name=milvus-standalone --format '{{.Status}}'"
                         standardOutput = healthOut
                         ignoreExitValue = true
@@ -212,7 +218,7 @@ task stopMilvusServer() {
         if (!Os.isFamily(Os.FAMILY_WINDOWS)) {
             def stdOut = new ByteArrayOutputStream()
             // Check if Milvus container is running
-            exec {
+            execHelper.execOperations.exec {
                 commandLine 'sh', '-c', "docker ps --filter name=milvus-standalone --filter status=running --format '{{.Names}}'"
                 standardOutput = stdOut
                 ignoreExitValue = true
@@ -221,7 +227,7 @@ task stopMilvusServer() {
                 println "Stopping Milvus server using docker compose."
                 def composeDir = "$project.projectDir/tests/resources/server"
                 def runOut = new ByteArrayOutputStream()
-                exec {
+                execHelper.execOperations.exec {
                     workingDir composeDir
                     commandLine 'sh', '-c', "docker compose -f compose.yml down"
                     standardOutput = runOut
