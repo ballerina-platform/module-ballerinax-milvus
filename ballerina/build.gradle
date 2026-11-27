@@ -79,7 +79,7 @@ dependencies {
     externalJars(group: 'io.grpc', name: 'grpc-netty-shaded', version: "${grpcVersion}") {
         transitive = false
     }
-    externalJars(group: 'com.google.guava', name: 'guava', version: "${guavaVersion}") {
+    externalJars(group: 'com.google.guava', name: 'guava', version: "${guavaVersion}", ext: 'jar') {
         transitive = false
     }
     externalJars(group: 'io.grpc', name: 'grpc-core', version: "${grpcVersion}") {
